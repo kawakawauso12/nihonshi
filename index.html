@@ -1,0 +1,607 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+<meta charset="UTF-8">
+<title>日本史 遺跡＆資料クイズ</title>
+
+<style>
+
+body{
+    font-family:sans-serif;
+    background:#f2f2f2;
+    margin:0;
+    text-align:center;
+}
+
+h1{
+    background:#2d5a87;
+    color:white;
+    margin:0;
+    padding:20px;
+}
+
+#game{
+    padding:20px;
+}
+
+.card{
+    background:white;
+    max-width:900px;
+    margin:20px auto;
+    padding:20px;
+    border-radius:15px;
+    box-shadow:0 0 10px rgba(0,0,0,0.2);
+}
+
+button{
+    padding:12px 20px;
+    margin:8px;
+    border:none;
+    border-radius:10px;
+    background:#4b89c8;
+    color:white;
+    font-size:16px;
+    cursor:pointer;
+}
+
+button:hover{
+    background:#32689e;
+}
+
+.choice{
+    display:block;
+    width:340px;
+    margin:10px auto;
+}
+
+table{
+    width:95%;
+    margin:auto;
+    border-collapse:collapse;
+}
+
+th,td{
+    border:1px solid #999;
+    padding:10px;
+}
+
+th{
+    background:#dfefff;
+}
+
+#result{
+    font-size:22px;
+    margin-top:20px;
+}
+
+#hint{
+    margin-top:15px;
+    font-size:18px;
+    color:#333;
+}
+
+</style>
+</head>
+
+<body>
+
+<h1>日本史 遺跡＆資料クイズ！</h1>
+
+<div id="game"></div>
+
+<script>
+
+const ruins = [
+
+{
+name:"岩宿遺跡",
+place:"群馬県",
+feature:"日本で初めて旧石器時代が確認された遺跡",
+hintPlace:"関東地方",
+hintThing:"打製石器",
+era:"旧石器時代"
+},
+
+{
+name:"和田峠",
+place:"長野県",
+feature:"黒曜石の産地",
+hintPlace:"中部地方",
+hintThing:"黒曜石",
+era:"旧石器時代"
+},
+
+{
+name:"山内丸山遺跡",
+place:"青森県",
+feature:"縄文時代の大規模集落",
+hintPlace:"東北地方",
+hintThing:"巨大な柱の建物跡",
+era:"縄文時代"
+},
+
+{
+name:"亀ヶ岡遺跡",
+place:"青森県",
+feature:"遮光器土偶で有名",
+hintPlace:"東北地方",
+hintThing:"土偶",
+era:"縄文時代"
+},
+
+{
+name:"大森貝塚",
+place:"東京都",
+feature:"モースが発見した貝塚",
+hintPlace:"関東地方",
+hintThing:"貝塚",
+era:"縄文時代"
+},
+
+{
+name:"菜畑遺跡",
+place:"佐賀県",
+feature:"日本最古級の水田跡",
+hintPlace:"九州地方",
+hintThing:"最古級の水田",
+era:"弥生時代"
+},
+
+{
+name:"坂付遺跡",
+place:"神奈川県",
+feature:"弥生時代初期の水田跡",
+hintPlace:"関東地方",
+hintThing:"水田",
+era:"弥生時代"
+},
+
+{
+name:"登呂遺跡",
+place:"静岡県",
+feature:"水田跡や高床倉庫が見つかった",
+hintPlace:"中部地方",
+hintThing:"高床倉庫",
+era:"弥生時代"
+},
+
+{
+name:"吉野ヶ里遺跡",
+place:"佐賀県",
+feature:"弥生時代の環濠集落",
+hintPlace:"九州地方",
+hintThing:"物見やぐら",
+era:"弥生時代"
+},
+
+{
+name:"荒神谷遺跡",
+place:"島根県",
+feature:"大量の銅剣が発見された",
+hintPlace:"中国地方",
+hintThing:"銅剣",
+era:"弥生時代"
+},
+
+{
+name:"加茂岩倉遺跡",
+place:"島根県",
+feature:"大量の銅鐸が発見された",
+hintPlace:"中国地方",
+hintThing:"銅鐸",
+era:"弥生時代"
+},
+
+{
+name:"紫雲出山遺跡",
+place:"香川県",
+feature:"瀬戸内海を見渡せる高地性集落",
+hintPlace:"四国地方",
+hintThing:"高地性集落",
+era:"弥生時代"
+},
+
+{
+name:"纏向遺跡",
+place:"奈良県",
+feature:"邪馬台国候補とされる遺跡",
+hintPlace:"近畿地方",
+hintThing:"卑弥呼との関連",
+era:"古墳時代"
+},
+
+{
+name:"志賀島",
+place:"福岡県",
+feature:"漢委奴国王の金印が発見された",
+hintPlace:"九州地方",
+hintThing:"金印",
+era:"弥生時代"
+}
+
+];
+
+const documents = [
+
+{
+name:"漢書地理志",
+content:"倭人が100余りの国に分かれていたことが書かれている",
+hint:"中国の前漢時代の歴史書"
+},
+
+{
+name:"後漢書東夷伝",
+content:"奴国王が金印を授かったことが書かれている",
+hint:"金印に関する資料"
+},
+
+{
+name:"魏志倭人伝",
+content:"卑弥呼や邪馬台国について書かれている",
+hint:"三国時代の魏の歴史書"
+}
+
+];
+
+let currentQuiz = [];
+let current = 0;
+let score = 0;
+
+const game = document.getElementById("game");
+
+function menu(){
+
+game.innerHTML = `
+<div class="card">
+
+<h2>メニュー</h2>
+
+<button onclick="startFeatureQuiz()">遺跡の特徴クイズ</button><br>
+
+<button onclick="startPlaceQuiz()">遺跡の場所クイズ</button><br>
+
+<button onclick="documentMenu()">資料クイズ</button><br>
+
+<button onclick="showRuins()">遺跡一覧を見る</button><br>
+
+<button onclick="showDocuments()">資料一覧を見る</button>
+
+</div>
+`;
+
+}
+
+function shuffle(array){
+
+return [...array].sort(() => Math.random() - 0.5);
+
+}
+
+function startFeatureQuiz(){
+
+current = 0;
+score = 0;
+
+let shuffledRuins = shuffle(ruins);
+
+currentQuiz = shuffledRuins.map(r => {
+
+let wrongChoices = shuffle(
+ruins.filter(x=>x.name!==r.name)
+).slice(0,3);
+
+let choices = shuffle([
+r.feature,
+...wrongChoices.map(x=>x.feature)
+]);
+
+return{
+
+question:`${r.name}はどんな遺跡？`,
+answer:r.feature,
+choices:choices,
+hint1:r.hintPlace,
+hint2:r.hintThing
+
+};
+
+});
+
+showQuestion();
+
+}
+
+function startPlaceQuiz(){
+
+current = 0;
+score = 0;
+
+let shuffledRuins = shuffle(ruins);
+
+currentQuiz = shuffledRuins.map(r => {
+
+let wrongChoices = shuffle(
+ruins.filter(x=>x.name!==r.name)
+).slice(0,3);
+
+let choices = shuffle([
+r.place,
+...wrongChoices.map(x=>x.place)
+]);
+
+return{
+
+question:`${r.name}がある県は？`,
+answer:r.place,
+choices:choices,
+hint1:r.hintThing,
+hint2:r.feature
+
+};
+
+});
+
+showQuestion();
+
+}
+
+function documentMenu(){
+
+game.innerHTML = `
+<div class="card">
+
+<h2>資料クイズ</h2>
+
+<button onclick="startDocumentQuiz('漢書地理志')">漢書地理志</button><br>
+
+<button onclick="startDocumentQuiz('後漢書東夷伝')">後漢書東夷伝</button><br>
+
+<button onclick="startDocumentQuiz('魏志倭人伝')">魏志倭人伝</button><br><br>
+
+<button onclick="menu()">戻る</button>
+
+</div>
+`;
+
+}
+
+function startDocumentQuiz(name){
+
+current = 0;
+score = 0;
+
+const doc = documents.find(d=>d.name===name);
+
+currentQuiz = [{
+
+question:doc.content + " と書かれている資料は？",
+answer:doc.name,
+choices:shuffle(documents.map(d=>d.name)),
+hint1:doc.hint,
+hint2:"中国の歴史書"
+
+}];
+
+showQuestion();
+
+}
+
+function showQuestion(){
+
+if(current >= currentQuiz.length){
+
+finishQuiz();
+return;
+
+}
+
+const q = currentQuiz[current];
+
+game.innerHTML = `
+<div class="card">
+
+<h2>問題 ${current+1}</h2>
+
+<p>${q.question}</p>
+
+<div id="choices"></div>
+
+<button onclick="showHint1()">場所ヒント</button>
+
+<button onclick="showHint2()">物・特徴ヒント</button>
+
+<div id="hint"></div>
+
+<div id="result"></div>
+
+<div id="nextArea"></div>
+
+</div>
+`;
+
+const choicesDiv = document.getElementById("choices");
+
+q.choices.forEach(choice => {
+
+const btn = document.createElement("button");
+
+btn.className = "choice";
+
+btn.textContent = choice;
+
+btn.onclick = () => checkAnswer(choice);
+
+choicesDiv.appendChild(btn);
+
+});
+
+}
+
+function showHint1(){
+
+document.getElementById("hint").innerHTML =
+"💡 ヒント：" + currentQuiz[current].hint1;
+
+}
+
+function showHint2(){
+
+document.getElementById("hint").innerHTML =
+"💡 ヒント：" + currentQuiz[current].hint2;
+
+}
+
+function checkAnswer(choice){
+
+const q = currentQuiz[current];
+
+document.querySelectorAll(".choice").forEach(btn=>{
+
+btn.disabled = true;
+
+});
+
+const result = document.getElementById("result");
+
+if(choice === q.answer){
+
+score++;
+
+result.innerHTML = "⭕ 正解！";
+
+}else{
+
+result.innerHTML =
+`❌ 不正解！ 正解は「${q.answer}」`;
+
+}
+
+document.getElementById("nextArea").innerHTML = `
+<br>
+<button onclick="nextQuestion()">次の問題へ</button>
+`;
+
+}
+
+function nextQuestion(){
+
+current++;
+
+showQuestion();
+
+}
+
+function finishQuiz(){
+
+game.innerHTML = `
+<div class="card">
+
+<h2>クイズ終了！</h2>
+
+<p>${score} / ${currentQuiz.length} 問正解！</p>
+
+<button onclick="menu()">メニューへ戻る</button>
+
+</div>
+`;
+
+}
+
+function showRuins(){
+
+let html = `
+<div class="card">
+
+<h2>遺跡一覧（古い順）</h2>
+
+<table>
+
+<tr>
+<th>時代</th>
+<th>遺跡</th>
+<th>場所</th>
+<th>特徴</th>
+</tr>
+`;
+
+ruins.forEach(r=>{
+
+html += `
+<tr>
+
+<td>${r.era}</td>
+
+<td>${r.name}</td>
+
+<td>${r.place}</td>
+
+<td>${r.feature}</td>
+
+</tr>
+`;
+
+});
+
+html += `
+</table>
+
+<br>
+
+<button onclick="menu()">戻る</button>
+
+</div>
+`;
+
+game.innerHTML = html;
+
+}
+
+function showDocuments(){
+
+let html = `
+<div class="card">
+
+<h2>資料一覧</h2>
+
+<table>
+
+<tr>
+<th>資料</th>
+<th>内容</th>
+</tr>
+`;
+
+documents.forEach(d=>{
+
+html += `
+<tr>
+
+<td>${d.name}</td>
+
+<td>${d.content}</td>
+
+</tr>
+`;
+
+});
+
+html += `
+</table>
+
+<br>
+
+<button onclick="menu()">戻る</button>
+
+</div>
+`;
+
+game.innerHTML = html;
+
+}
+
+menu();
+
+</script>
+
+</body>
+</html>
